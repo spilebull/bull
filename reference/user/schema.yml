@@ -1,0 +1,414 @@
+openapi: 3.0.0
+info:
+  title: users
+  version: '1.0'
+servers:
+  - url: 'http://localhost:80'
+paths:
+  /users:
+    get:
+      summary: Your GET endpoint
+      tags:
+        - user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      Users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    code: '200'
+                    data:
+                      - id: 1
+                        first_name: 李
+                        last_name: 媛
+                        email: li_jing@retail-ai.jp
+                        birthday: '1995-08-21T00:00:00Z'
+                        phone_number: 555-5555-5555
+                        created_at: '2020-08-04T15:53:06.19215Z'
+                        updated_at: '2020-08-04T15:53:06.19215Z'
+                      - id: 2
+                        first_name: 森
+                        last_name: 優太
+                        email: mori_yuta@retail-ai.jp
+                        birthday: '1995-08-21T00:00:00Z'
+                        phone_number: 666-6666-6666
+                        created_at: '2020-08-04T15:53:06.19215Z'
+                        updated_at: '2020-08-04T15:53:06.19215Z'
+                      - id: 3
+                        first_name: 硯川
+                        last_name: 千優
+                        email: suzurikawa_chihiro@retail-ai.jp
+                        birthday: '1995-08-21T00:00:00Z'
+                        phone_number: 777-7777-7777
+                        created_at: '2020-08-04T15:53:06.19215Z'
+                        updated_at: '2020-08-04T15:53:06.19215Z'
+                      - id: 4
+                        first_name: 李
+                        last_name: 静
+                        email: li_yuan@retail-ai.jp
+                        birthday: '1995-08-21T00:00:00Z'
+                        phone_number: 888-8888-8888
+                        created_at: '2020-08-04T15:53:06.19215Z'
+                        updated_at: '2020-08-04T15:53:06.19215Z'
+                      - id: 5
+                        first_name: 顔
+                        last_name: 鵬程
+                        email: yan_pengcheng@retail-ai.jp
+                        birthday: '1995-08-21T00:00:00Z'
+                        phone_number: 111-1111-1111
+                        created_at: '2020-08-04T15:53:06.19215Z'
+                        updated_at: '2020-08-04T15:53:06.19215Z'
+                    message: success
+      operationId: get-users
+      description: ユーザーリスト取得
+    post:
+      summary: ''
+      operationId: post-users
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    code: '200'
+                    data:
+                      id: 6
+                      first_name: insert
+                      last_name: ok
+                      email: ishigami_tetsuhiro@retail-ai.jp
+                      birthday: '1995-08-21'
+                      phone_number: 080-2222-3333
+                      created_at: '2020-08-05T10:31:25.066849+09:00'
+                      updated_at: '2020-08-05T10:31:25.066849+09:00'
+                    message: success
+        '400':
+          description: Bad Request 入力値のバリデーションエラー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  error:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    code: '400'
+                    error: "リクエストパラメータ不正!!:Key: 'User.Birthday' Error:Field validation for 'Birthday' failed on the 'birthday' tag"
+        '500':
+          description: Internal Server Error  データベースなどのエラー unique制約など
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  error:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    code: '500'
+                    error: システム内部エラーが発生しました。システム管理者に連絡してください。
+      tags:
+        - user
+      description: 新規ユーザー追加
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/reqUser'
+            examples:
+              example-1:
+                value:
+                  first_name: insert
+                  last_name: ok
+                  email: ishigami_tetsuhiro@retail-ai.jp
+                  birthday: '1995-08-21'
+                  phone_number: 080-2222-3333
+          application/xml:
+            schema:
+              type: object
+              properties: {}
+            examples:
+              example-1: {}
+        description: ユーザーデータ
+  '/users/{userId}':
+    parameters:
+      - schema:
+          type: integer
+        name: userId
+        in: path
+        description: |
+          ユーザーID
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags:
+        - user
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    code: '200'
+                    data:
+                      id: 1
+                      first_name: 李
+                      last_name: 媛
+                      email: li_jing@retail-ai.jp
+                      birthday: '1995-08-21T00:00:00Z'
+                      phone_number: 555-5555-5555
+                      created_at: '2020-08-04T15:53:06.19215Z'
+                      updated_at: '2020-08-04T15:53:06.19215Z'
+                    message: success
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  error:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    code: '404'
+                    error: 'ユーザーデータがありません!!'
+      operationId: get-users-userId
+      description: ユーザーをIDで指定して取得
+    put:
+      summary: ''
+      operationId: put-users-userId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    code: '200'
+                    data:
+                      id: 2
+                      first_name: update
+                      last_name: success
+                      email: kitagawa_ryoichi@retail-ai.jp
+                      birthday: '1995-08-21'
+                      phone_number: 080-5555-3333
+                      created_at: '0001-01-01T00:00:00Z'
+                      updated_at: '2020-08-05T10:20:22.6469988+09:00'
+                    message: success
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  error:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    code: '404'
+                    error: 'ユーザーデータがありません!!'
+      tags:
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/reqUser'
+            examples:
+              example-1:
+                value:
+                  first_name: update
+                  last_name: success
+                  email: kitagawa_ryoichi@retail-ai.jp
+                  birthday: '1995-08-21'
+                  phone_number: 080-5555-3333
+        description: ''
+      description: 指定したユーザーの情報を更新する
+    delete:
+      summary: ''
+      operationId: delete-users-userId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  data:
+                    type: string
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    code: '200'
+                    data: 1行が削除されました。
+                    message: success
+          headers: {}
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  error:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    code: '404'
+                    error: 'ユーザーデータがありません!!'
+      tags:
+        - user
+      description: ユーザーIDを指定してデータを削除する。
+  /hello:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              examples:
+                example-1:
+                  value:
+                    message: ハローワールド
+      operationId: get-hello
+      description: サーバー起動確認（DB接続なしでも起動します）
+components:
+  schemas:
+    User:
+      title: User
+      type: object
+      x-examples:
+        example-1:
+          id: 1
+          first_name: 李
+          last_name: 媛
+          email: li_jing@retail-ai.jp
+          birthday: '1995-08-21T00:00:00Z'
+          phone_number: 555-5555-5555
+          created_at: '2020-08-04T15:53:06.19215Z'
+          updated_at: '2020-08-04T15:53:06.19215Z'
+        example-2:
+          id: 4
+          first_name: 李
+          last_name: 静
+          email: li_yuan@retail-ai.jp
+          birthday: '1995-08-21T00:00:00Z'
+          phone_number: 888-8888-8888
+          created_at: '2020-08-04T15:53:06.19215Z'
+          updated_at: '2020-08-04T15:53:06.19215Z'
+      description: ユーザー
+      properties:
+        id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        birthday:
+          type: string
+        phone_number:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - first_name
+        - last_name
+        - email
+        - birthday
+        - phone_number
+    reqUser:
+      title: reqUser
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        birthday:
+          type: string
+        phone_number:
+          type: string

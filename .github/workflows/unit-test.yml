@@ -1,0 +1,53 @@
+name: unit test
+on: pull_request
+jobs:
+  build:
+    name: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: go setup
+        uses: actions/setup-go@v2
+        with:
+          go-version: "^1.14.4"
+      - name: go test
+        run: make test
+      - name: Get pull request issue number
+        id: vars
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then \
+            echo "::set-output name=issue-number::${{ github.event.number }}"; \
+          else \
+            echo "::set-output name=issue-number::1"; \
+          fi
+      - name: Test Create comment message
+        id: get-comment-body
+        run: |
+          test=$(cat coverage.txt|awk -F ' ' '{print "%0D |"$1"|"$2"|"}')
+          body="# ユニットテスト結果"
+          body="${body} %0A%0D | package | Coverage | %0D |-|-|"
+          body="${body} ${test}"
+          echo ::set-output name=body::$body
+      - name: Test Find Comments
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ steps.vars.outputs.issue-number }}
+          comment-author: github-actions[bot]
+      - if: steps.fc.outputs.comment-id == null
+        name: Test Create comment
+        uses: peter-evans/create-or-update-comment@v1
+        id: coverage-comment
+        with:
+          issue-number: ${{ steps.vars.outputs.issue-number }}
+          body: |
+            ${{ steps.get-comment-body.outputs.body }}
+      - if: steps.fc.outputs.comment-id != null
+        name: Test update comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            ${{ steps.get-comment-body.outputs.body }}

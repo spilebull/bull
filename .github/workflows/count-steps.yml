@@ -1,0 +1,31 @@
+name: step count
+on:
+  pull_request:
+    types: [ready_for_review]
+jobs:
+  build:
+    name: code steps using gocloc
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login GitHub Registry
+        run: docker login docker.pkg.github.com -u owner -p ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run gocloc and Set env
+        run: |
+          echo 'content<<EOF' >> $GITHUB_ENV
+          docker run --rm -v "${PWD}":/workdir docker.pkg.github.com/hhatto/gocloc/gocloc:latest . >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const env = process.env
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "``` \n" + env.content + "\n ```"
+            })

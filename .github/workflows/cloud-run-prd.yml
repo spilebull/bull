@@ -1,0 +1,69 @@
+name: Build and Deploy to Cloud Run
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  PROJECT_ID: -- TODO --
+  RUN_REGION: asia-northeast1
+  SERVICE_NAME: -- TODO --
+  ARTIFACT_HOST: asia-northeast2-docker.pkg.dev
+  ARTIFACT_REPO: -- TODO --
+  DOCKER_BUILDKIT: 1
+  INSTANCE_CONNECTION_NAME: ${{ secrets.SQL_CONNECTION_PRD }}
+  DB_USER: postgres
+  DB_PASS: ${{ secrets.DB_PASSWORD_PRD }}
+  DB_NAME: template
+  DB_PORT: 5432
+  TZ: Asia/Tokyo
+  LOG_LEVEL: Info
+  GIN_MODE: release
+
+jobs:
+  setup-build-deploy:
+    name: Setup, Build, and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: google-github-actions/setup-gcloud@master
+        with:
+          version: "290.0.1"
+          service_account_key: ${{ secrets.SA_KEY_PRD }}
+
+      - name: Configure Docker to use the gcloud command-line tool as a credential
+        run: |-
+          gcloud auth configure-docker $ARTIFACT_HOST
+
+      - name: Set tag
+        run: echo "TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Build
+        run: |-
+          docker build --target deploy --tag "$ARTIFACT_HOST/$PROJECT_ID/$ARTIFACT_REPO/$SERVICE_NAME:$TAG" .
+
+      - name: Push the Docker image to Google Artifact Registry
+        run: |-
+          docker push "$ARTIFACT_HOST/$PROJECT_ID/$ARTIFACT_REPO/$SERVICE_NAME:$TAG"
+
+      - name: Deploy
+        run: |-
+          gcloud run deploy $SERVICE_NAME \
+            --project $PROJECT_ID \
+            --region $RUN_REGION \
+            --image "$ARTIFACT_HOST/$PROJECT_ID/$ARTIFACT_REPO/$SERVICE_NAME:$TAG" \
+            --platform "managed" \
+            --no-allow-unauthenticated \
+            --add-cloudsql-instances $INSTANCE_CONNECTION_NAME \
+            --set-env-vars DB_HOST="/cloudsql/$INSTANCE_CONNECTION_NAME" \
+            --set-env-vars DB_USER="$DB_USER" \
+            --set-env-vars DB_PASSWORD="$DB_PASS" \
+            --set-env-vars DB_NAME="$DB_NAME" \
+            --set-env-vars DB_PORT=$DB_PORT \
+            --set-env-vars TZ="$TZ" \
+            --set-env-vars LOG_LEVEL="$LOG_LEVEL" \
+            --set-env-vars GIN_MODE="$GIN_MODE"
