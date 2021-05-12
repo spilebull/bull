@@ -37,7 +37,7 @@ jobs:
           comment-author: github-actions[bot]
       - if: steps.fc.outputs.comment-id == null
         name: Test Create comment
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v1.4.5
         id: coverage-comment
         with:
           issue-number: ${{ steps.vars.outputs.issue-number }}
@@ -45,7 +45,7 @@ jobs:
             ${{ steps.get-comment-body.outputs.body }}
       - if: steps.fc.outputs.comment-id != null
         name: Test update comment
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v1.4.5
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           edit-mode: replace
