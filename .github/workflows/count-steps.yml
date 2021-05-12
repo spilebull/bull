@@ -18,7 +18,7 @@ jobs:
           docker run --rm -v "${PWD}":/workdir docker.pkg.github.com/hhatto/gocloc/gocloc:latest . >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
 
-      - uses: actions/github-script@v3
+      - uses: actions/github-script@v4.0.2
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
