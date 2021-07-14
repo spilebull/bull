@@ -1,10 +1,10 @@
-FROM golang:1.15.6-buster AS debug
+FROM golang:1.16.6-buster AS debug
 WORKDIR /app
 COPY . .
 RUN curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
 CMD air
 
-FROM golang:1.15.6-buster AS build
+FROM golang:1.16.6-buster AS build
 WORKDIR /app
 ENV CGO_ENABLED=0
 COPY go.* ./
