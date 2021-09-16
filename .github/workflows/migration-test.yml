@@ -1,10 +1,10 @@
-name: migration-test
+name: Migration Test
 
 on:
   push:
-    branches: [release]
+    branches: [ release ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   test:

@@ -1,31 +1,18 @@
 # Clean architecture with Go language templates
 
+[![Build](https://github.com/spilebull/bull/actions/workflows/reviewdog.yml/badge.svg)](https://github.com/spilebull/bull/actions/workflows/reviewdog.yml)
 [![Test](https://github.com/spilebull/bull/actions/workflows/unit-test.yml/badge.svg)](https://github.com/spilebull/bull/actions/workflows/unit-test.yml)
-# 実行
-
-`make run`
-
-`testdata/http`内のファイルを`Rest Client`で実行して試してください
-
-> webapi 開発のための Go テンプレート
-
-## ゲートウェイ経由 ユーザーリスト取得パス (認証必須)
-
-> GET https://lastonemile-gateway-8f6sxn9s.de.gateway.dev/sample/api/v1/users
-
-認証方法
-
-- https://github.com/xxx/jwtgen を利用してください
 
 ## 目的
 
-GitHub の新しいプロジェクトを作るためのテンプレート
+自分の参照用、備忘録、実験用に作成
+テンプレートとしても活用
 
 - 日本語：[テンプレートからリポジトリを作成する - GitHub ヘルプ](https://help.github.com/ja/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template)
 
 ## ディレクトリ構成
 
-```shell
+```bash
 .
 ├── adapter
 │  ├── controller
@@ -40,7 +27,7 @@ GitHub の新しいプロジェクトを作るためのテンプレート
 ├── domain
 │  └── user.go
 ├── ent
-│  └── schema           # ここにDBスキーマを書いてください
+│  └── schema           # DBスキーマはここに格納
 ├── go.mod
 ├── go.sum
 ├── go.test.sh
@@ -68,44 +55,59 @@ GitHub の新しいプロジェクトを作るためのテンプレート
    └── user.go
 ```
 
+## 認証
+
+- <https://jwt.io/> 参照
+- [GateWay 経由 Users 取得](https://lastonemile-gateway-8f6sxn9s.de.gateway.dev/sample/api/v1/users)
+
 ## 利用方法
 
-### 自動テスト
+testdata/http 内の File を Rest Client で試す
 
-`make test`
+``` bash
+# 実行
+make run
 
-## db 接続
+# Automatic テスト
+make test
 
-`make db-in`
-`psql template -U test`
+# Database 接続
+make db-in
 
-## リクエストデータのバリデーション（検証）
+# PostgreSQL 使用
+psql template -U test
+```
 
-[go-playground/validator/10](https://github.com/go-playground/validator)を利用している。
+## Request Data Validation
 
-まずは[validator package · pkg.go.dev](https://pkg.go.dev/github.com/go-playground/validator/v10?tab=doc)で目的にあったルールを探す
+- [go-playground/validator/10](https://github.com/go-playground/validator) を使用
+- [validator package · pkg.go.dev](https://pkg.go.dev/github.com/go-playground/validator/v10?tab=doc) カスタムする場合は参照
 
-## データベース
+## Database
 
-`docker-compose.yml`で`POSTGRES_DB`に指定したデータベースが作成されます。
+- `docker-compose.yml` の `POSTGRES_DB`で指定したデータベースを作成
 
-## データベースマイグレーション
+## Database Migration
 
-以下の方法で[golang-migrate/migrate](https://github.com/golang-migrate/migrate)をインストールしてください。
+### 以下方法
 
-Mac の方は`Homebrew`でインストールしてください
+[golang-migrate/migrate](https://github.com/golang-migrate/migrate) をインストール
 
-`$ brew install golang-migrate`
+```bash
+# Use on Mac
+brew install golang-migrate
 
-Windows の方は`scoop`などでインストールしてください
+# Use on Windows
+scoop install migrate
+```
 
-`$ scoop install migrate`
+## Database Migration File
 
-### マイグレーションファイルの作成
+```bash
+make mig-cr name={分かりやすい名前}
+```
 
-`make mig-cr name=わかりやすい名前`
-
-以下のようなファイルが`db/migrations`以下に作成される
+以下のような File が `db/migrations` 以下に作成
 
 - `000001_create_users_table.down.sql`
 - `000001_create_users_table.up.sql`
@@ -114,27 +116,32 @@ DDL を up.sql に書き、それを打ち消す SQL を down.sql に書く
 
 注：IF (NOT) EXISTS をつけること。
 
-### マイグレーションの実行
+## Database Migration Execution
 
 まずデータベースの接続情報を環境変数に登録しておく
-接続情報は以下のような形式
-`dbdriver://username:password@host:port/dbname?option1=true&option2=false`
 
-環境変数設定
+### 接続情報は以下のような形式
 
-`$ export POSTGRESQL_URL='postgres://test:test@localhost:5432/test?sslmode=disable'`
+```go
+dbdriver://username:password@host:port/dbname?option1=true&option2=false
+```
 
-マイグレーション
+### 環境変数設定
 
-`make mig-up`
+```bash
+export POSTGRESQL_URL='postgres://test:test@localhost:5432/test?sslmode=disable'
+```
 
-逆マイグレーション
+```bash
+# migration
+make mig-up
 
-`make mig-down`
+# rollback
+make mig-down
 
-マイグレーションのバージョン確認
-
-`make mig-v`
+# migration version
+make mig-v
+```
 
 ### CloudSQL のタイムゾーンについてに注意点
 
@@ -146,14 +153,14 @@ CloudSQL はデフォルトのタイムゾーンがロンドンのため、
 
 ## 使用ライブラリ
 
-> 詳細は`go.mod`を確認。
+> 詳細は `go.mod` を確認。
 
-| 目的       | ライブラリ   | ドキュメントリンク                                                                                                      |
-| ---------- | ------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| WAF        | Chi          | [go-chi/chi: lightweight, idiomatic and composable router for building Go HTTP services](https://github.com/go-chi/chi) |
-| ORM        | facebook/ent | [ent](https://entgo.io/docs/getting-started/)                                                                           |
-| ロギング   | ZAP          | [go-chi/httplog](https://github.com/go-chi/httplog)                                                                     |
-| エラー処理 | errors       | [errors - Go 言語](https://xn--go-hh0g6u.com/pkg/errors/)                                                               |
+| 目的 | ライブラリ | ドキュメントリンク|
+| ---------- | ------------ |----------------------------------------------------------------------------------------------------------------------- |
+| WAF | Chi | [go-chi/chi: lightweight, idiomatic and composable router for building Go HTTP services](https://github.com/go-chi/chi) |
+| ORM | facebook/ent | [ent](https://entgo.io/docs/getting-started) |
+| Logging   | ZAP | [go-chi/httplog](https://github.com/go-chi/httplog) |
+| Errors | errors | [errors - Go 言語](https://xn--go-hh0g6u.com/pkg/errors/) |
 
 ## 詳細なドキュメントへのリンク
 
@@ -161,5 +168,5 @@ CloudSQL はデフォルトのタイムゾーンがロンドンのため、
 
 ## 参考 URL
 
-- [Go はクリーンアーキテクチャの思想を活かせるか？　 DMM のゲームプラットフォームに Go 言語を選んだ理由 - ログミー Tech](https://logmi.jp/tech/articles/323451)
+- [Go はクリーンアーキテクチャの思想を活かせるか？ DMM のゲームプラットフォームに Go 言語を選んだ理由 - ログミー Tech](https://logmi.jp/tech/articles/323451)
 - [Go 言語で Clean Architecture を実現して、gomock でテストしてみた - Qiita](https://qiita.com/ogady/items/34aae1b2af3080e0fec4)

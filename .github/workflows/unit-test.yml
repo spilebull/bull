@@ -1,18 +1,25 @@
-name: unit test
-on: pull_request
+name: Unit Test
+
+on:
+  pull_request:
+
 jobs:
   build:
-    name: unit-test
+    name: Unit Test
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: go setup
+
+      - name: Go Setup
         uses: actions/setup-go@v2
         with:
           go-version: ^1.17
-      - name: go test
+
+      - name: Go Test
         run: make test
+
       - name: Get pull request issue number
         id: vars
         run: |
@@ -21,6 +28,7 @@ jobs:
           else \
             echo "::set-output name=issue-number::1"; \
           fi
+
       - name: Test Create comment message
         id: get-comment-body
         run: |
@@ -29,14 +37,16 @@ jobs:
           body="${body} %0A%0D | package | Coverage | %0D |-|-|"
           body="${body} ${test}"
           echo ::set-output name=body::$body
-      - name: Test Find Comments
+
+      - name: Test Find comments
         uses: peter-evans/find-comment@v1
         id: fc
         with:
           issue-number: ${{ steps.vars.outputs.issue-number }}
           comment-author: github-actions[bot]
       - if: steps.fc.outputs.comment-id == null
-        name: Test Create comment
+
+        name: Test Create comments
         uses: peter-evans/create-or-update-comment@v1
         id: coverage-comment
         with:
@@ -44,7 +54,8 @@ jobs:
           body: |
             ${{ steps.get-comment-body.outputs.body }}
       - if: steps.fc.outputs.comment-id != null
-        name: Test update comment
+
+        name: Test Update comments
         uses: peter-evans/create-or-update-comment@v1
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}

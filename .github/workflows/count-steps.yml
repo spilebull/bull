@@ -1,10 +1,12 @@
-name: step count
+name: Step Count
+
 on:
   pull_request:
-    types: [ready_for_review]
+    types: [ ready_for_review ]
+
 jobs:
   build:
-    name: code steps using gocloc
+    name: Code steps using gocloc
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
