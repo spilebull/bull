@@ -7,9 +7,9 @@ on:
 
 env:
   PROJECT_ID: -- TODO --
-  RUN_REGION: asia-northeast1
+  RUN_REGION: -- TODO --
   SERVICE_NAME: -- TODO --
-  ARTIFACT_HOST: asia-northeast2-docker.pkg.dev
+  ARTIFACT_HOST: -- TODO --
   ARTIFACT_REPO: -- TODO --
   DOCKER_BUILDKIT: 1
   INSTANCE_CONNECTION_NAME: ${{ secrets.SQL_CONNECTION_PRD }}
